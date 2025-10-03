@@ -1,40 +1,46 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./form"
 import { useForm } from "react-hook-form"
-import { Input } from "./ui/input"
+import { Input } from "./input"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useLoginMutation } from "@/redux/features/Auth/auth.api"
+import { toast } from "sonner"
 
-const registerSchema = z.object({
-  username: z.string().min(3, { message: "Name is to short" }).max(50), 
-  email : z.email({error : "Invalid email formate"}),
-  password : z.string().min(7 , {error : "Password is to short"}),
-  confirmPassword : z.string().min(7 , {error : "Confirm password is to short"}),
-})
-.refine((data) => data.password === data.confirmPassword , {
-  message : "Confirm password doesn't match",
-  path : ["confirmPassword"]
-})
+const loginSchema = z.object({
+  email: z.email({ error: "Invalid email formate" }),
+  password: z.string().min(7, { error: "Password is to short" })
+});
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
 
+  const [login] = useLoginMutation();
+
   const form = useForm({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
       email: "",
-      password: "",
-      confirmPassword: ""
+      password: ""
     }
   });
 
-  const onSubmit = (data : z.infer<typeof registerSchema>) => {
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     console.log(data);
+
+    try {
+      const res = await login(data).unwrap();
+      console.log(res);
+      toast.success("Login successfully.");
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.data.message)
+    }
+
   }
 
   return (
@@ -57,28 +63,12 @@ export function LoginForm({
         <div className="grid gap-6">
           <FormField
             control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="username" {...field} />
-                </FormControl>
-                <FormDescription className="sr-only">
-                  This is your public display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="email@gmail.com" {...field} />
+                  <Input placeholder="email" {...field} />
                 </FormControl>
                 <FormDescription className="sr-only">
                   This is your public display name.
@@ -93,22 +83,6 @@ export function LoginForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input placeholder="********" {...field} />
-                </FormControl>
-                <FormDescription className="sr-only">
-                  This is your public display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
                   <Input placeholder="********" {...field} />
                 </FormControl>

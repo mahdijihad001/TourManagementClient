@@ -1,6 +1,6 @@
 import { GalleryVerticalEnd } from "lucide-react"
 import RegisterImage from "../assets/images/travel-register.jpg"
-import { LoginForm } from "@/components/login-form"
+import { RegisterForm } from "@/components/ui/RegisterForm"
 
 
 const Register = () => {
@@ -24,7 +24,7 @@ const Register = () => {
                 </div>
                 <div className="flex flex-1 items-center justify-center">
                     <div className="w-full max-w-xs">
-                        <LoginForm />
+                        <RegisterForm />
                     </div>
                 </div>
             </div>
